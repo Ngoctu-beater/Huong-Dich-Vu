@@ -138,28 +138,6 @@ public class DAOImpl implements DAO {
         }
     }
 
-    // thống kê vốn đầu tư
-    @Override
-    public long getTotalPrice() {
-        Connection conn = null;
-        long totalPrice = 0;
-        try {
-            conn = DBContext.getConnection();
-            String query = "SELECT SUM(price)\n"
-                    + "FROM Car";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                totalPrice = rs.getLong(1);;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(DAOImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            DBContext.closeConnection(conn);
-        }
-        return totalPrice;
-    }
-
     @Override
     public List<Company> getByName() {
         Connection conn = null;
