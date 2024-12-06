@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Thống kê</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="css/statistics.css" />
+        <style>
+            .sidebar {
+                height: 100vh;
+                background: #343a40;
+                color: white;
+                position: fixed;
+                width: 250px;
+            }
+            .sidebar .nav-link {
+                color: white;
+            }
+            .sidebar .nav-link:hover {
+                background: #495057;
+            }
+
+            .content {
+                margin-left: 250px;
+                padding: 40px;
+                display: grid;
+            }
+
+            h1 {
+                margin-bottom: 20px;
+                color: #333;
+            }
+            .controls {
+                margin-bottom: 20px;
+                font-size: 18px;
+            }
+            select {
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+            .chart-container {
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+                width: 100%;
+                max-width: 1200px;
+                margin-bottom: 20px;
+                margin-top: 20px
+            }
+            .chart-box {
+                flex: 1;
+                max-width: 30%;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 20px;
+                text-align: center;
+                position: relative;
+            }
+            .chart-box h3 {
+                font-size: 18px;
+                margin-bottom: 10px;
+                font-weight: bold;
+                color: #555;
+            }
+            .chart-box .value {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .chart-box .percentage {
+                font-size: 14px;
+                color: #777;
+            }
+            canvas {
+                max-height: 250px;
+            }
+            @media (max-width: 768px) {
+                .chart-container {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                .chart-box {
+                    max-width: 100%;
+                }
+            }
+            .dashboard {
+                width: 100%;
+                max-width: 1200px;
+                margin: 20px auto;
+                padding: 10px;
+            }
+
+            .legend {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                font-size: 14px;
+                color: #555;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+            }
+
+            .legend-color {
+                width: 20px;
+                height: 20px;
+                border-radius: 4px;
+                margin-right: 10px;
+            }
+
+            .legend-color.purple {
+                background-color: #7e57c2;
+            }
+
+            .legend-color.blue {
+                background-color: #42a5f5;
+            }
+
+            .legend-color.green {
+                background-color: #66bb6a;
+            }
+
+            .legend-color.orange {
+                background-color: #d33a1f;
+            }
+
+            .legend-color.gray {
+                background-color: #eeeeee;
+            }
+
+            .car-card {
+                display: flex;
+                align-items: center;
+                background: #fff;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 10px;
+            }
+
+            .rank {
+                font-size: 20px;
+                font-weight: bold;
+                color: #fff;
+                background-color: #555;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-right: 15px;
+            }
+
+            .car-image {
+                width: 120px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 8px;
+                margin-right: 15px;
+            }
+
+            .info {
+                flex: 1;
+            }
+
+            .info h2 {
+                margin: 0;
+                font-size: 18px;
+                color: #333;
+            }
+
+            .info p {
+                font-size: 14px;
+                margin: 5px 0;
+            }
+
+            .progress {
+                display: flex;
+                height: 20px;
+                background: #e6e6e6;
+                border-radius: 10px;
+                overflow: hidden;
+                margin-top: 5px;
+            }
+
+            .progress-bar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 12px;
+                font-weight: bold;
+            }
+
+            .progress-bar.purple {
+                background-color: #7e57c2;
+            }
+
+            .progress-bar.blue {
+                background-color: #42a5f5;
+            }
+
+            .progress-bar.green {
+                background-color: #66bb6a;
+            }
+
+            .progress-bar.orange {
+                background-color: #d33a1f;
+            }
+
+            .progress-bar.gray {
+                background-color: #e9e9e9;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="sidebar position-fixed">
+            <h5 class="text-center py-3">Thông tin tài khoản</h5>
+            <nav class="nav flex-column">
+                <a class="nav-link" href="dashboard.jsp"><i class="fas fa-user"></i> Tài khoản</a>
+                <a class="nav-link" href="car"><i class="fas fa-car"></i> Quản lý xe</a>
+                <a class="nav-link" href="statistics.html"><i class="fas fa-chart-line"></i> Biểu đồ</a>
+                <a class="nav-link" href="#"><i class="fas fa-cog"></i> Cài đặt</a>
+                <a class="nav-link" href="login.jsp"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+            </nav>
+        </div>
+
+        <div class="content">
+            <h1 style="text-align: center">Biểu đồ Báo Cáo Kinh Doanh</h1>
+            <div class="controls">
+                <label for="year-select">Chọn năm: </label>
+                <select id="year-select">
+                    <option value="2021" selected>2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <!-- Doanh thu tháng -->
+                <div class="chart-box">
+                    <h3>Doanh Thu Tháng</h3>
+                    <div class="value" id="revenue-value" style="color: #4caf50;"></div>
+                    <div class="percentage" id="revenue-percentage" style="color: #4caf50;"></div>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+
+                <!-- Chi phí tháng -->
+                <div class="chart-box">
+                    <h3>Chi Phí Tháng</h3>
+                    <div class="value" id="cost-value" style="color: #f44336;"></div>
+                    <div class="percentage" id="cost-percentage" style="color: #f44336;"></div>
+                    <canvas id="costChart"></canvas>
+                </div>
+
+                <!-- Lợi nhuận tháng -->
+                <div class="chart-box">
+                    <h3>Lợi Nhuận Tháng</h3>
+                    <div class="value" id="profit-value" style="color: #2196f3;"></div>
+                    <div class="percentage" id="profit-percentage" style="color: #2196f3;"></div>
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <div class="year-selector">
+                <h1 style="text-align: center">Doanh thu phân bố theo vùng miền</h1>
+                <label for="yearSelect">Chọn năm:</label>
+                <select id="yearSelect" onchange="updateChart()">
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+
+            <div class="dashboard">
+                <h1 style="text-align: center">Top 5 xe có doanh số cao nhất</h1>
+                <!-- Chú thích màu cho các miền -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color purple"></div>
+                        <span>Bắc</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color blue"></div>
+                        <span>Trung</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color green"></div>
+                        <span>Nam</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color orange"></div>
+                        <span>Chưa công bố vùng miền</span>
+                    </div>
+                </div>
+
+                <!-- Các thẻ xe -->
+                <div class="car-card">
+                    <div class="rank">1</div>
+                    <img src="https://via.placeholder.com/120" alt="Toyota Vios" class="car-image">
+                    <div class="info">
+                        <h2>Toyota Vios</h2>
+                        <!-- m thay các số trực tiếp ở đây, thì nó sẽ tính tổng doanh số luôn, và chiều dài biểu đồ cũng sẽ thay đổi -->
+                        <p>Doanh số: <strong class="total-sales"></strong> (<span class="purple" contenteditable="true">582</span> - <span class="blue" contenteditable="true">338</span> - <span class="green" contenteditable="true">537</span>)</p>
+                        <div class="progress">
+                            <div class="progress-bar purple"></div>
+                            <div class="progress-bar blue"></div>
+                            <div class="progress-bar green"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="rank">2</div>
+                    <img src="https://via.placeholder.com/120" alt="Honda City" class="car-image">
+                    <div class="info">
+                        <h2>Honda City</h2>
+                        <p>Doanh số: <strong class="total-sales"></strong> (<span class="purple" contenteditable="true">812</span> - <span class="blue" contenteditable="true">401</span> - <span class="green" contenteditable="true">457</span>)</p>
+                        <div class="progress">
+                            <div class="progress-bar purple"></div>
+                            <div class="progress-bar blue"></div>
+                            <div class="progress-bar green"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="rank">3</div>
+                    <img src="https://via.placeholder.com/120" alt="Hyundai Accent" class="car-image">
+                    <div class="info">
+                        <h2>Hyundai Accent</h2>
+                        <p>Doanh số: <strong class="total-sales"></strong> (<span class="orange" contenteditable="true">1600</span>)</p>
+                        <div class="progress">
+                            <div class="progress-bar orange"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="rank">4</div>
+                    <img src="https://via.placeholder.com/120" alt="Ford Ranger" class="car-image">
+                    <div class="info">
+                        <h2>Ford Ranger</h2>
+                        <p>Doanh số: <strong class="total-sales"></strong> (<span class="purple" contenteditable="true">420</span> - <span class="blue" contenteditable="true">450</span> - <span class="green" contenteditable="true">250</span>)</p>
+                        <div class="progress">
+                            <div class="progress-bar purple"></div>
+                            <div class="progress-bar blue"></div>
+                            <div class="progress-bar green"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="car-card">
+                    <div class="rank">5</div>
+                    <img src="https://via.placeholder.com/120" alt="Mazda CX-5" class="car-image">
+                    <div class="info">
+                        <h2>Mazda CX-5</h2>
+                        <p>Doanh số: <strong class="total-sales"></strong> (<span class="purple" contenteditable="true">715</span> - <span class="blue" contenteditable="true">350</span> - <span class="green" contenteditable="true">350</span>)</p>
+                        <div class="progress">
+                            <div class="progress-bar purple"></div>
+                            <div class="progress-bar blue"></div>
+                            <div class="progress-bar green"></div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const labels = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
+
+            // Dữ liệu theo năm
+            const dataByYear = {
+                "2021": {
+                    revenue: [60, 65, 70, 68, 72, 74, 78, 79, 82, 75, 70, 80],
+                    cost: [30, 32, 34, 35, 36, 37, 40, 41, 42, 44, 45, 46]
+                },
+                "2022": {
+                    revenue: [55, 60, 62, 60, 64, 66, 70, 71, 74, 68, 67, 73],
+                    cost: [28, 30, 32, 33, 34, 35, 37, 38, 39, 41, 42, 44]
+                },
+                "2023": {
+                    revenue: [80, 85, 87, 90, 93, 95, 100, 102, 105, 99, 94, 98],
+                    cost: [40, 42, 44, 45, 46, 47, 50, 51, 52, 54, 55, 56]
+                }
+            };
+
+            // Tùy chọn chung
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {display: false},
+                    tooltip: {callbacks: {label: (context) => context.raw + " tỷ"}}
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {display: true, text: "Tháng", color: "#555", font: {weight: "bold", size: 14}}
+                    },
+                    y: {beginAtZero: true, ticks: {callback: (value) => value + " tỷ"}}
+                },
+                elements: {line: {tension: 0.4}, point: {radius: 3}}
+            };
+
+            // Tạo biểu đồ
+            const revenueChart = new Chart(document.getElementById("revenueChart"), {
+                type: "line",
+                data: {labels: labels, datasets: []},
+                options: commonOptions
+            });
+            const costChart = new Chart(document.getElementById("costChart"), {
+                type: "line",
+                data: {labels: labels, datasets: []},
+                options: commonOptions
+            });
+            const profitChart = new Chart(document.getElementById("profitChart"), {
+                type: "line",
+                data: {labels: labels, datasets: []},
+                options: commonOptions
+            });
+
+            // Cập nhật dữ liệu biểu đồ
+            function updateCharts(year) {
+                console.log("Updating charts for year:", year);
+
+                const revenueData = dataByYear[year]?.revenue || [];
+                const costData = dataByYear[year]?.cost || [];
+                const profitData = revenueData.map((r, i) => r - (costData[i] || 0));
+
+                // Tính tổng doanh thu, chi phí và lợi nhuận
+                const totalRevenue = revenueData.reduce((acc, val) => acc + val, 0);
+                const totalCost = costData.reduce((acc, val) => acc + val, 0);
+                const totalProfit = totalRevenue - totalCost;
+
+                // Lấy dữ liệu năm trước để tính phần trăm thay đổi
+                const previousYear = (year === "2021") ? "2021" : (parseInt(year) - 1).toString();
+                const previousYearRevenue = dataByYear[previousYear]?.revenue.reduce((acc, val) => acc + val, 0) || 0;
+                const previousYearCost = dataByYear[previousYear]?.cost.reduce((acc, val) => acc + val, 0) || 0;
+                const previousYearProfit = previousYearRevenue - previousYearCost;
+
+                const revenuePercentage = previousYearRevenue ? ((totalRevenue - previousYearRevenue) / previousYearRevenue) * 100 : 0;
+                const costPercentage = previousYearCost ? ((totalCost - previousYearCost) / previousYearCost) * 100 : 0;
+                const profitPercentage = previousYearProfit ? ((totalProfit - previousYearProfit) / previousYearProfit) * 100 : 0;
+
+                // Log dữ liệu để kiểm tra
+                console.log("Revenue Data:", revenueData);
+                console.log("Cost Data:", costData);
+                console.log("Profit Data:", profitData);
+                console.log("Revenue % Change:", revenuePercentage);
+                console.log("Cost % Change:", costPercentage);
+                console.log("Profit % Change:", profitPercentage);
+
+                // Cập nhật số liệu tổng và phần trăm
+                document.getElementById("revenue-value").textContent = `${totalRevenue.toFixed(2)} tỷ`;
+                document.getElementById("cost-value").textContent = `${totalCost.toFixed(2)} tỷ`;
+                document.getElementById("profit-value").textContent = `${totalProfit.toFixed(2)} tỷ`;
+
+                document.getElementById("revenue-percentage").textContent = `${revenuePercentage.toFixed(2)}%`;
+                document.getElementById("cost-percentage").textContent = `${costPercentage.toFixed(2)}%`;
+                document.getElementById("profit-percentage").textContent = `${profitPercentage.toFixed(2)}%`;
+
+                // Cập nhật biểu đồ
+                revenueChart.data.datasets = [
+                    {data: revenueData, borderColor: "#4caf50", backgroundColor: "rgba(76, 175, 80, 0.2)", fill: true}
+                ];
+                costChart.data.datasets = [
+                    {data: costData, borderColor: "#f44336", backgroundColor: "rgba(244, 67, 54, 0.2)", fill: true}
+                ];
+                profitChart.data.datasets = [
+                    {data: profitData, borderColor: "#2196f3", backgroundColor: "rgba(33, 150, 243, 0.2)", fill: true}
+                ];
+
+                // Áp dụng cập nhật
+                revenueChart.update();
+                costChart.update();
+                profitChart.update();
+            }
+
+            // Xử lý thay đổi năm
+            document.getElementById("year-select").addEventListener("change", (event) => {
+                const year = event.target.value;
+                updateCharts(year);
+            });
+
+            // Khởi tạo biểu đồ cho năm đầu tiên
+            updateCharts("2021");
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+
+            // Dữ liệu biểu đồ cho từng năm, các giá trị đan xen nhau ngẫu nhiên
+            function generateRandomData() {
+                let data = [];
+                for (let i = 0; i < 12; i++) {
+                    data.push(Math.random() * (15 - 1) + 1); // Giá trị ngẫu nhiên từ 1 đến 15
+                }
+                return data;
+            }
+
+            const data2021 = {
+                labels: ['01/2021', '02/2021', '03/2021', '04/2021', '05/2021', '06/2021', '07/2021', '08/2021', '09/2021', '10/2021', '11/2021', '12/2021'],
+                datasets: [{
+                        label: 'Miền Bắc',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(128, 0, 128, 0.7)', // Tím đậm
+                        borderColor: 'purple',
+                        borderWidth: 2
+                    }, {
+                        label: 'Miền Nam',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 140, 0, 0.7)', // Cam đậm
+                        borderColor: 'orange',
+                        borderWidth: 2
+                    }, {
+                        label: 'Miền Trung',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 0, 0, 0.7)', // Đỏ tươi
+                        borderColor: 'red',
+                        borderWidth: 2
+                    }, {
+                        label: 'Chưa công bố vùng miền',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 255, 0, 0.7)', // Vàng
+                        borderColor: 'yellow',
+                        borderWidth: 2
+                    }]
+            };
+
+            const data2022 = {
+                labels: ['01/2022', '02/2022', '03/2022', '04/2022', '05/2022', '06/2022', '07/2022', '08/2022', '09/2022', '10/2022', '11/2022', '12/2022'],
+                datasets: [{
+                        label: 'Miền Bắc',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(128, 0, 128, 0.7)', // Tím đậm
+                        borderColor: 'purple',
+                        borderWidth: 2
+                    }, {
+                        label: 'Miền Trung',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 140, 0, 0.7)', // Cam đậm
+                        borderColor: 'orange',
+                        borderWidth: 2
+                    }, {
+                        label: 'Miền Nam',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 0, 0, 0.7)', // Đỏ tươi
+                        borderColor: 'red',
+                        borderWidth: 2
+                    }, {
+                        label: 'Chưa công bố vùng miền',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 255, 0, 0.7)', // Vàng
+                        borderColor: 'yellow',
+                        borderWidth: 2
+                    }]
+            };
+
+            const data2023 = {
+                labels: ['01/2023', '02/2023', '03/2023', '04/2023', '05/2023', '06/2023', '07/2023', '08/2023', '09/2023', '10/2023', '11/2023', '12/2023'],
+                datasets: [{
+                        label: 'Miền Bắc',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(128, 0, 128, 0.7)', // Tím đậm
+                        borderColor: 'purple',
+                        borderWidth: 2
+                    }, {
+                        label: 'Miền Nam',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 140, 0, 0.7)', // Cam đậm
+                        borderColor: 'orange',
+                        borderWidth: 2
+                    }, {
+                        label: 'Miền Trung',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 0, 0, 0.7)', // Đỏ tươi
+                        borderColor: 'red',
+                        borderWidth: 2
+                    }, {
+                        label: 'Chưa công bố vùng miền',
+                        data: generateRandomData(),
+                        backgroundColor: 'rgba(255, 255, 0, 0.7)', // Vàng
+                        borderColor: 'yellow',
+                        borderWidth: 2
+                    }]
+            };
+
+            // Biểu đồ ban đầu (năm 2021)
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: data2021,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tháng'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Doanh Thu (tỷ)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Hàm thay đổi dữ liệu theo năm
+            function updateChart() {
+                var year = document.getElementById('yearSelect').value;
+                var data;
+
+                if (year == '2021') {
+                    data = data2021;
+                } else if (year == '2022') {
+                    data = data2022;
+                } else if (year == '2023') {
+                    data = data2023;
+                }
+
+                myChart.data = data;
+                myChart.update();
+            }
+
+            function updateSalesAndBars() {
+
+                const maxSales = 1757; // Giá trị doanh số lớn nhất (có thể đặt động)
+                document.querySelectorAll('.car-card').forEach(card => {
+                    const salesSpans = card.querySelectorAll('span[contenteditable="true"]');
+                    const totalSalesElem = card.querySelector('.total-sales');
+                    const progressBars = card.querySelectorAll('.progress-bar');
+                    let totalSales = 0;
+
+                    // Cập nhật doanh số từ các <span>
+                    salesSpans.forEach((span, index) => {
+                        const value = parseInt(span.textContent.trim()) || 0;
+                        totalSales += value;
+                        progressBars[index].dataset.value = value;
+                        progressBars[index].textContent = value;
+                    });
+
+                    // Cập nhật tổng doanh số
+                    totalSalesElem.textContent = totalSales;
+
+                    // Cập nhật chiều rộng các thanh tiến trình
+                    progressBars.forEach(bar => {
+                        const value = parseInt(bar.dataset.value) || 0;
+                        bar.style.width = `${(value / maxSales) * 100}%`;
+                    });
+
+                    // Xử lý thanh màu xám
+                    const grayBar = card.querySelector('.progress-bar.gray');
+                    if (grayBar) {
+                        const grayValue = maxSales - totalSales;
+                        grayBar.dataset.value = grayValue;
+                        grayBar.textContent = grayValue > 0 ? grayValue : '';
+                        grayBar.style.width = `${(grayValue / maxSales) * 100}%`;
+                    }
+                });
+            }
+
+            // Lắng nghe thay đổi trong các <span>
+            document.querySelectorAll('span[contenteditable="true"]').forEach(span => {
+                span.addEventListener('input', updateSalesAndBars);
+            });
+
+            // Khởi động
+            updateSalesAndBars();
+        </script>
+    </body>
+</html>
