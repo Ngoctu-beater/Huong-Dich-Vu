@@ -1,0 +1,6 @@
+context\DBContext.class
+entity\Product.class
+control\SearchController$1.class
+dao\DAO.class
+control\SearchController.class
+control\CompareController.class
