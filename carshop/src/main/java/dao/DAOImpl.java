@@ -5,7 +5,6 @@
 package dao;
 
 import context.DBContext;
-import entity.Company;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -136,27 +135,5 @@ public class DAOImpl implements DAO {
         } finally {
             DBContext.closeConnection(conn);
         }
-    }
-
-    @Override
-    public List<Company> getByName() {
-        Connection conn = null;
-        List<Company> list = new ArrayList<>();
-        try {
-            conn = DBContext.getConnection();
-            String query = "SELECT [name] FROM Company";
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Company company = new Company();
-                company.setName(rs.getString("name"));
-                list.add(company);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(DAOImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            DBContext.closeConnection(conn);
-        }
-        return list;
     }
 }
