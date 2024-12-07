@@ -15,7 +15,6 @@
     </head>
     <body>
         <h1 style="text-align: center;">So sánh xe ô tô</h1>
-        <a href="search"><button class="add-car-button">Thêm xe</button></a>
         <table id="comparison-table">
             <thead>
                 <tr>
