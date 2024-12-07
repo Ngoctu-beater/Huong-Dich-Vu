@@ -6,7 +6,6 @@ package dao;
 
 import entity.Admin;
 import entity.Car;
-import entity.Company;
 import java.util.List;
 
 /**
@@ -18,5 +17,4 @@ public interface DAO {
     boolean addCar(String tenXe, String anh, String gia, int nam, String xuatXu, String kieuDang, int choNgoi, String kichThuoc, int chieuDai, String mamXe, String lopXe, int trongLuong, String dongCo, String dungTich, String congSuat, String moMen, String hopSo, String danDong, String phanhTruoc, String phanhSau, String tocDo, float butToc, String tieuHao, String abs, String tuiKhi, String ebd, String esp);
     void editCar(String tenXe, String anh, String gia, int nam, String xuatXu, String kieuDang, int choNgoi, String kichThuoc, int chieuDai, String mamXe, String lopXe, int trongLuong, String dongCo, String dungTich, String congSuat, String moMen, String hopSo, String danDong, String phanhTruoc, String phanhSau, String tocDo, float butToc, String tieuHao, String abs, String tuiKhi, String ebd, String esp, int id);
     long getTotalPrice();
-    List<Company> getByName();
 }
