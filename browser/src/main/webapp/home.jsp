@@ -17,23 +17,6 @@
         <!-- Include the above in your HEAD tag -->
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <link href="css/home.css" rel="stylesheet" type="text/css"/>
-        <style>
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-            }
-
-            table, th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: center;
-            }
-
-            th {
-                background-color: #f2f2f2;
-            }
-        </style>
     </head>
     <body>
         <!--begin of menu-->
@@ -99,23 +82,37 @@
         <form action="comparecar" method="get">
             <button type="submit" style="background-color: #4CAF50; color: white; border: none; padding: 15px 32px; text-align: center;
                     text-decoration: none; display: inline-block; font-size: 14px; margin: 4px 2px; cursor: pointer; border-radius: 4px;">So sánh</button>
-            <table>
-                <thead>
-                    <tr>
-                    </tr>
-                </thead>
 
-                <tbody>
-                    <c:forEach items="${listCar}" var="o">
-                        <tr>
-                            <td><input type="checkbox" name="ids" value="${o.id}"></td>
-                            <td>${o.tenXe}</td>
-                            <td><img src="${o.anh}" alt="alt"/></td>
-                            <td>${o.gia}</td>
-                        </tr>   
-                    </c:forEach>  
-                </tbody>
-            </table>
+            <!-- danh sách sản phẩm -->
+            <section id="products" class="py-5">
+                <div class="container">
+                    <div class="row g-4">
+                        <c:forEach items="${listCar}" var="o">
+                            <div class="col-md-4" style="margin-bottom: 10px">
+                                <div class="card shadow">
+                                    <img
+                                        src="${o.anh}"
+                                        class="card-img-top"
+                                        alt=""
+                                        />
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title" style="font-size: 18px">${o.tenXe}</h5>
+                                        <p class="card-text">${o.gia}</p>
+                                    </div>
+                                    <div class="choose" style="display: flex; align-items: center; justify-content: space-around; margin-bottom: 10px">
+                                        <div class="sub-choose" style="background-color: deepskyblue; width: 150px; height: 40px; border-radius: 5px; align-content: end; color: white">
+                                            <input type="checkbox" id="ids" name="ids" value="${o.id}" style="margin-left: 2px" />
+                                            <label for="ids">Thêm vào so sánh</label>
+                                        </div>
+                                        <div class="sub-choose">
+                                            <input type="button" id="buy" name="buy" value="Mua ngay" style="height: 40px; border-radius: 5px; background-color: red; color: white;"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+            </section>
         </form>
 
         <!-- các trang -->
